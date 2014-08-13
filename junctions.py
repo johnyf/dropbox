@@ -1,4 +1,4 @@
-#! /opt/local/bin/python3.3#
+#!/usr/bin/env python
 #
 # 2012-2014 (BSD) Ioannis Filippidis
 """
