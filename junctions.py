@@ -1,10 +1,10 @@
 #! /opt/local/bin/python3.3#
-# Purpose:   create/delete junctions based on "dirlink" files (win, mac, linux)
-# Author:    Ioannis Filippidis
-# Contact:   jfilippidis@gmail.com
-# Date:      2012.04.20 - 2012.10.01
-# Python:    3.3
-# Licence:   GPLv3, Copyright (c) 2012 Ioannis Filippidis
+#
+# 2012-2014 (BSD) Ioannis Filippidis
+"""
+create/delete junctions based on "dirlink" files
+(win, mac, linux)
+"""
 
 import sys, shlex, os, time, subprocess, fnmatch, platform
 
