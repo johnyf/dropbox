@@ -31,12 +31,12 @@ def create_delete_dirlinks_darwin(dirlink, args):
     
     path = dirlink.replace('dirlink', '')
     path = path.replace('\\', '/')
-    logger.debug('current dirlink file in: ' + path)
+    logger.debug('current dirlink file in: ' + str(path))
     
     n = 0;
     for line in igot:
         n = n +1
-        logger.debug('Line No.', n)
+        logger.debug('Line No.' + str(n))
         
         line = line.replace('\\', '/');
         if line.find('target') > -1:
@@ -74,7 +74,7 @@ def create_delete_dirlinks_windows(dirlink, args):
     n = 0;
     for line in igot:
         n = n +1
-        logger.debug('Line No.', n)
+        logger.debug('Line No.' + str(n))
         
         line = line.replace('\\', '\\\\')
         if line.find('target') > -1:
