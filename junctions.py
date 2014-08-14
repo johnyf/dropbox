@@ -138,11 +138,6 @@ if __name__ == '__main__':
     if args.verbose:
         logger.setLevel(logging.DEBUG)
     
-    # list junctions recursively
-    if operation in ['-l', '--list']:
-        args = shlex.split('junction -s')
-        p = subprocess.call(args);
-        exit()
     filename = args.filename
     logger.debug('instruction in filename = ' + str(filename))
     
