@@ -46,8 +46,8 @@ def create_delete_dirlinks_darwin(dirlink, args):
             junction = line.replace('link = ', '')
             logger.debug('The Link is: ' + junction)
             
-            junction = path +junction;
-            target = path +target;
+            #junction = path + junction
+            #target = path + target
             
             if args.create:
                 args = shlex.split('ln -s ' + target + ' ' + junction);
