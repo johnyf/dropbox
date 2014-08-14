@@ -101,9 +101,6 @@ def create_delete_dirlinks_windows(dirlink, args):
             
             subprocess.call(args)
 
-def save_dirlinks(dirlink):
-    logger.error('Saving not yet implemented. Please do this manually for now.')
-
 if __name__ == '__main__':
     desc = (
         'locate() is used in case of exporting only to a PDF '
@@ -138,10 +135,6 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
     
-    # log newly appeared junctions in dirlink files
-    if operation in ['-s', '--save']:
-        save_dirlinks(filename)
-        exit()
     if args.verbose:
         logger.setLevel(logging.DEBUG)
     
