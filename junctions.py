@@ -9,23 +9,22 @@ import logging
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger()
 
-import sys, shlex, os, subprocess, fnmatch, platform
+import sys
+import os
+import subprocess
+import argparse
+import shlex
+import fnmatch
+import platform
 
-# locate() is used in case of exporting only to a .pdf (w/o latex export)
-# Only in that case \includegraphics{} is still able to find the .pdf
-# without a path.
-# If latex export is used, then the produced .pdf_tex should be used
-# with an \input{} command in latex and a relative path is mandatory for
-# the \input{} command to work.
 def locate(pattern, root=os.curdir):
-    """Locate all files matching supplied filename pattern in and below
-    supplied root directory.
+    """Recursively find files under given directory matching pattern.
     """
     for path, dirs, files in os.walk(os.path.abspath(root)):
         for filename in fnmatch.filter(files, pattern):
             yield os.path.join(path, filename)
 
-def create_delete_dirlinks_darwin(dirlink, operation):
+def create_delete_dirlinks_darwin(dirlink, args):
     fid = open(dirlink, 'r')
     igot = fid.readlines()
     fid.close()
@@ -50,9 +49,9 @@ def create_delete_dirlinks_darwin(dirlink, operation):
             junction = path +junction;
             target = path +target;
             
-            if operation in ['-c', '--create']:
+            if args.create:
                 args = shlex.split('ln -s ' + target + ' ' + junction);
-            elif operation in ['-d', '--delete']:
+            elif args.delete:
                 args = shlex.split('rm -f -v ' + junction);
             else:
                 raise sys.exit(
@@ -63,7 +62,7 @@ def create_delete_dirlinks_darwin(dirlink, operation):
             
             subprocess.call(args)
 
-def create_delete_dirlinks_windows(dirlink, operation):
+def create_delete_dirlinks_windows(dirlink, args):
     fid = open(dirlink, 'r')
     igot = fid.readlines()
     fid.close()
@@ -88,10 +87,10 @@ def create_delete_dirlinks_windows(dirlink, operation):
             junction = path +junction;
             target = path +target;
             
-            if operation in ['-c', '--create']:
+            if args.create:
                 args = shlex.split('ln1 --junction ' + junction +
                                    ' ' + target)
-            elif operation in ['-d', '--delete']:
+            elif args.delete:
                 args = shlex.split('junction -d ' + junction)
             else:
                 raise sys.exit(
@@ -106,55 +105,62 @@ def save_dirlinks(dirlink):
     logger.error('Saving not yet implemented. Please do this manually for now.')
 
 if __name__ == '__main__':
-    # any args ?
-    if len(sys.argv) <= 1:
-        raise sys.exit(
-            'Input missing. '
-            'Available operations: -c | --create | -d | --delete'
-        )
-        exit()
+    desc = (
+        'locate() is used in case of exporting only to a PDF '
+        '(w/o latex export). '
+        'Only in that case \includegraphics{} is still '
+        'able to find the PDF without a path. '
+        'If latex export is used, '
+        'then the produced .pdf_tex should be used, '
+        'with an \input{} command in latex and '
+        'a relative path is mandatory for '
+        'the \input{} command to work.'
+    )
     
-    # operation = ?
-    if len(sys.argv) >= 2:
-        operation = sys.argv[1];
-        if operation in ['-h', '--help']:
-            print(
-                'junctions.py [options] [filename],\n'
-                'where: options = '
-                '-c | --create | -d | --delete | -l | --list | -h | --help'
-            )
-            exit();
-        else:
-            operation = sys.argv[1];
+    parser = argparse.ArgumentParser(description=desc)
     
-    # filename = ? | default
-    if len(sys.argv) >= 3:
-        filename = sys.argv[2];
-    else:
-        filename = 'dirlink'; # default
+    g = parser.add_mutually_exclusive_group()
     
-    logger.debug('instruction in filename = ' + filename +
-                 ', operation = ' + operation)
+    g.add_argument('-c', '--create', help='add symbolic links',
+                    action='store_true')
+    g.add_argument('-d', '--delete', help='erase symbolic links',
+                    action='store_true')
+    
+    parser.add_argument('-f', '--filename', help='filename',
+                        default='dirlink')
+    parser.add_argument('-v', '--verbose', help='increase output verbosity',
+                    action='store_true')
+    
+    args = parser.parse_args()
+    
+    # no args ?
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit(1)
     
     # log newly appeared junctions in dirlink files
     if operation in ['-s', '--save']:
         save_dirlinks(filename)
         exit()
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
     
     # list junctions recursively
     if operation in ['-l', '--list']:
         args = shlex.split('junction -s')
         p = subprocess.call(args);
         exit()
+    filename = args.filename
+    logger.debug('instruction in filename = ' + str(filename))
     
-    # create | delete junctions
+    # create or delete junctions
     file_generator = locate(filename, './')
     osname = platform.system()
-    for file in file_generator:
+    for f in file_generator:
         flag = 1
-        logger.debug('Found file named: ', file)
+        logger.debug('Found file named: ' + str(f))
         
         if osname == 'Darwin':
-            create_delete_dirlinks_darwin(file, operation)
+            create_delete_dirlinks_darwin(f, args)
         else:
-            create_delete_dirlinks_windows(file, operation)
+            create_delete_dirlinks_windows(f, args)
