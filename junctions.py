@@ -38,13 +38,13 @@ def create_delete_dirlinks_darwin(dirlink, args):
         n = n +1
         logger.debug('Line No.' + str(n))
         
-        line = line.replace('\\', '/');
+        line = line.replace('\\', '/')
         if line.find('target') > -1:
             target = line.replace('target = ', '')
             logger.debug('The target is: ' + target)
         elif line.find('link') > -1:
             junction = line.replace('link = ', '')
-            logger.debug('The Link is :' + junction)
+            logger.debug('The Link is: ' + junction)
             
             junction = path +junction;
             target = path +target;
@@ -60,6 +60,7 @@ def create_delete_dirlinks_darwin(dirlink, args):
                     '-c | --create | -d | --delete'
                 )
             
+            logger.debug(args)
             subprocess.call(args)
 
 def create_delete_dirlinks_windows(dirlink, args):
@@ -84,8 +85,8 @@ def create_delete_dirlinks_windows(dirlink, args):
             junction = line.replace('link = ', '')
             logger.info('The Link is :' + junction)
             
-            junction = path +junction;
-            target = path +target;
+            junction = path +junction
+            target = path +target
             
             if args.create:
                 args = shlex.split('ln1 --junction ' + junction +
